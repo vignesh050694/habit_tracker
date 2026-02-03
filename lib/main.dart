@@ -8,6 +8,7 @@ import 'providers/habit_provider.dart';
 import 'providers/journal_provider.dart';
 import 'providers/activity_mapping_provider.dart';
 import 'providers/expense_provider.dart';
+import 'providers/manifestation_provider.dart';
 import 'screens/home/home_screen.dart';
 
 void main() async {
@@ -32,6 +33,7 @@ class HabitTrackerApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => JournalProvider()),
         ChangeNotifierProvider(create: (_) => ActivityMappingProvider()),
         ChangeNotifierProvider(create: (_) => ExpenseProvider()),
+        ChangeNotifierProvider(create: (_) => ManifestationProvider()),
       ],
       child: MaterialApp(
         title: 'Habit Tracker',

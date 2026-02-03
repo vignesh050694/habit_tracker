@@ -4,6 +4,7 @@ import '../models/habit.dart';
 import '../models/journal_entry.dart';
 import '../models/activity_mapping.dart';
 import '../models/expense.dart';
+import '../models/manifestation.dart';
 
 class SupabaseService {
   static SupabaseClient get _client => Supabase.instance.client;
@@ -240,5 +241,92 @@ class SupabaseService {
 
   static Future<void> deleteExpense(String id) async {
     await _client.from('expenses').delete().eq('id', id);
+  }
+
+  // ─── Manifestations ─────────────────────────────────────
+
+  static Future<List<Manifestation>> getManifestations() async {
+    final response = await _client
+        .from('manifestations')
+        .select()
+        .order('created_at', ascending: false);
+    return (response as List).map((e) => Manifestation.fromJson(e)).toList();
+  }
+
+  static Future<Manifestation> createManifestation(
+      Manifestation manifestation) async {
+    final response = await _client
+        .from('manifestations')
+        .insert(manifestation.toJson())
+        .select()
+        .single();
+    return Manifestation.fromJson(response);
+  }
+
+  static Future<Manifestation> updateManifestation(
+      Manifestation manifestation) async {
+    final response = await _client
+        .from('manifestations')
+        .update(manifestation.toJson())
+        .eq('id', manifestation.id)
+        .select()
+        .single();
+    return Manifestation.fromJson(response);
+  }
+
+  static Future<void> deleteManifestation(String id) async {
+    await _client.from('manifestations').delete().eq('id', id);
+  }
+
+  // ─── Manifestation Practices ────────────────────────────
+
+  static Future<List<ManifestationPractice>> getManifestationPractices(
+      String manifestationId) async {
+    final response = await _client
+        .from('manifestation_practices')
+        .select()
+        .eq('manifestation_id', manifestationId)
+        .order('date', ascending: false);
+    return (response as List)
+        .map((e) => ManifestationPractice.fromJson(e))
+        .toList();
+  }
+
+  static Future<ManifestationPractice> upsertManifestationPractice(
+      ManifestationPractice practice) async {
+    final response = await _client
+        .from('manifestation_practices')
+        .upsert(practice.toJson(), onConflict: 'manifestation_id,date')
+        .select()
+        .single();
+    return ManifestationPractice.fromJson(response);
+  }
+
+  // ─── Manifestation Signs ────────────────────────────────
+
+  static Future<List<ManifestationSign>> getManifestationSigns(
+      String manifestationId) async {
+    final response = await _client
+        .from('manifestation_signs')
+        .select()
+        .eq('manifestation_id', manifestationId)
+        .order('date', ascending: false);
+    return (response as List)
+        .map((e) => ManifestationSign.fromJson(e))
+        .toList();
+  }
+
+  static Future<ManifestationSign> createManifestationSign(
+      ManifestationSign sign) async {
+    final response = await _client
+        .from('manifestation_signs')
+        .insert(sign.toJson())
+        .select()
+        .single();
+    return ManifestationSign.fromJson(response);
+  }
+
+  static Future<void> deleteManifestationSign(String id) async {
+    await _client.from('manifestation_signs').delete().eq('id', id);
   }
 }

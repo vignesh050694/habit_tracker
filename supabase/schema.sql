@@ -83,6 +83,47 @@ CREATE TABLE IF NOT EXISTS expenses (
 CREATE INDEX IF NOT EXISTS idx_expenses_date ON expenses(date);
 CREATE INDEX IF NOT EXISTS idx_expenses_category_id ON expenses(category_id);
 
+-- ─── Manifestations ────────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS manifestations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  affirmation TEXT NOT NULL,
+  description TEXT,
+  category TEXT NOT NULL DEFAULT 'personal_growth', -- career, health, relationships, financial, personal_growth, spiritual
+  status TEXT NOT NULL DEFAULT 'active', -- active, manifesting, manifested, released
+  target_date DATE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  manifested_at TIMESTAMPTZ
+);
+
+-- ─── Manifestation Practices ──────────────────────────────
+
+CREATE TABLE IF NOT EXISTS manifestation_practices (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  manifestation_id UUID NOT NULL REFERENCES manifestations(id) ON DELETE CASCADE,
+  date DATE NOT NULL,
+  affirmed BOOLEAN NOT NULL DEFAULT false,
+  visualized BOOLEAN NOT NULL DEFAULT false,
+  gratitude_note TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE(manifestation_id, date)
+);
+
+CREATE INDEX IF NOT EXISTS idx_manifestation_practices_date ON manifestation_practices(date);
+CREATE INDEX IF NOT EXISTS idx_manifestation_practices_mid ON manifestation_practices(manifestation_id);
+
+-- ─── Manifestation Signs ──────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS manifestation_signs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  manifestation_id UUID NOT NULL REFERENCES manifestations(id) ON DELETE CASCADE,
+  description TEXT NOT NULL,
+  date DATE NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_manifestation_signs_mid ON manifestation_signs(manifestation_id);
+
 -- ─── Row Level Security (RLS) ────────────────────────────
 -- For a single-user app, you can enable RLS and create policies
 -- based on your Supabase auth setup. Below is a permissive policy
@@ -102,3 +143,11 @@ CREATE POLICY "Allow all on journal_entries" ON journal_entries FOR ALL USING (t
 CREATE POLICY "Allow all on activity_mappings" ON activity_mappings FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow all on expense_categories" ON expense_categories FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow all on expenses" ON expenses FOR ALL USING (true) WITH CHECK (true);
+
+ALTER TABLE manifestations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE manifestation_practices ENABLE ROW LEVEL SECURITY;
+ALTER TABLE manifestation_signs ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow all on manifestations" ON manifestations FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow all on manifestation_practices" ON manifestation_practices FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow all on manifestation_signs" ON manifestation_signs FOR ALL USING (true) WITH CHECK (true);

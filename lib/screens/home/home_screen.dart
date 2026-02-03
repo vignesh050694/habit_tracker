@@ -5,10 +5,12 @@ import '../../providers/habit_provider.dart';
 import '../../providers/journal_provider.dart';
 import '../../providers/activity_mapping_provider.dart';
 import '../../providers/expense_provider.dart';
+import '../../providers/manifestation_provider.dart';
 import '../habits/habits_screen.dart';
 import '../journal/journal_screen.dart';
 import '../activity_mapping/activity_mapping_screen.dart';
 import '../expenses/expenses_screen.dart';
+import '../manifestation/manifestation_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -24,6 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
     HabitsScreen(),
     JournalScreen(),
     ActivityMappingScreen(),
+    ManifestationScreen(),
     ExpensesScreen(),
   ];
 
@@ -38,12 +41,14 @@ class _HomeScreenState extends State<HomeScreen> {
     final journalProvider = context.read<JournalProvider>();
     final activityProvider = context.read<ActivityMappingProvider>();
     final expenseProvider = context.read<ExpenseProvider>();
+    final manifestationProvider = context.read<ManifestationProvider>();
 
     await Future.wait([
       habitProvider.loadHabits(),
       journalProvider.loadEntries(),
       activityProvider.loadMappings(),
       expenseProvider.loadAll(),
+      manifestationProvider.loadManifestations(),
     ]);
   }
 
@@ -74,6 +79,11 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icon(Icons.link_outlined),
             selectedIcon: Icon(Icons.link),
             label: 'Routines',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.auto_awesome_outlined),
+            selectedIcon: Icon(Icons.auto_awesome),
+            label: 'Manifest',
           ),
           NavigationDestination(
             icon: Icon(Icons.account_balance_wallet_outlined),
